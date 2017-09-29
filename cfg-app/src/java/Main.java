@@ -1,4 +1,5 @@
-import com.opencsv.CSVReader;
+package java;
+
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -13,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.stream.Stream;
+
+import com.opencsv.CSVReader;
 
 public class Main {
 
