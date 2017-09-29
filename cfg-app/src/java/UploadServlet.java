@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+import com.google.gson.Gson;
 import com.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +42,9 @@ public class UploadServlet extends HttpServlet {
 
         try {
 
-            File initialFile = new File("C:\\Users\\tcw\\team-5\\test.csv");
+            try (PrintWriter out = response.getWriter()) {
+                
+                File initialFile = new File("C:\\Users\\tcw\\Desktop\\inputExcel1.csv");
             InputStream targetStream = new FileInputStream(initialFile);
 
             CSVReader csvr = null;
@@ -48,21 +54,58 @@ public class UploadServlet extends HttpServlet {
             Iterator<String[]> recordsIterator = csvr.iterator();
 
             int lineNumber = 1;
+            
+            ArrayList<String> headers = new ArrayList<>();
+
 
             if (recordsIterator.hasNext()) {//skip header
-                recordsIterator.next();
+                String row[] = recordsIterator.next();
+                for (String col : row){
+                    headers.add(col);
+                    out.println(col);
+                }
                 lineNumber++;
             }
-
-            try (PrintWriter out = response.getWriter()) {
+            
+            HashMap<String,HashMap<String,Integer>> requestList = new HashMap<>();
+                
                 while (recordsIterator.hasNext()) {
                     String row[] = recordsIterator.next();
-                    for (String col : row) {
-                        out.print(col + "\t");
+                    String beneficiaryName = row[0];
+                    
+                    for (int i=1; i<row.length; i++){
+                        
+                        HashMap<String, Integer> foodEntries = new HashMap<>();
+                        try {
+                            out.println(row[i]);
+                            foodEntries.put(headers.get(i), Integer.parseInt(row[i]));
+                        } catch (Exception e) {
+                            
+                        }
+                        
+                        requestList.put(beneficiaryName, foodEntries);
                     }
-                    out.println("<br/>");
+                    out.println("<br>");
                 }
+                return;
+//                Gson gs = new Gson();
+//                out.println(gs.toJson(requestList));
+                
+//                return;
             }
+            
+//            List<Beneficiary> ranking = ProcessController.provideRanking();
+//            
+//            HashMap<String,Integer> inventory = new HashMap<>();
+//            inventory.put("Baking Needs (pc)", 100);
+//            inventory.put("Canned Drinks (300ml,pc)", 300);
+//            inventory.put("Bottled Drinks (1L,pc)", 150);
+//            
+//
+//            HashMap<String, HashMap<String, Integer>> recommendedList = ProcessController.allocate(inventory, requestList, ranking);
+//            
+//            System.out.println("HERE" + recommendedList);
+            
 
         } catch (IOException e) {
             e.printStackTrace();
